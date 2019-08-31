@@ -2,3 +2,4 @@
 obj/
 bin/
 /files_store/*
+publish/

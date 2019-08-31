@@ -18,7 +18,7 @@ resource "azurerm_app_service_plan" "app-plan-lfx" {
 
   sku {
     tier = "Standard"
-    size = "S2"
+    size = "P1V2"
   }
 }
 
