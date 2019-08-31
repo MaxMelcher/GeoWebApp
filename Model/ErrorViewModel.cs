@@ -1,6 +1,6 @@
 using System;
 
-namespace LargeFileExchange.Models
+namespace LargeFileExchange.Model
 {
     public class ErrorViewModel
     {

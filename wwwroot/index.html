@@ -1,12 +1,16 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+<!DOCTYPE html>
+<html>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-</div>
+<head>
+  <title>File upload demo - chunked uploads via the HTML5 File API</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
 
-<h1>File upload demo</h1>
+<body>
+  <div id="frame">
+
+    <h1>File upload demo</h1>
     <p>This is a client for uploading chunked files to a Aspnet Core Web API server.</p>
 
     <p>API documentation:
@@ -15,7 +19,7 @@
 
     <hr/>
 
-     <h3>Upload files</h3>
+    <h3>Upload files</h3>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="resumable.js"></script>
 
@@ -218,3 +222,8 @@
         });
       }
     </script>
+
+  </div>
+</body>
+
+</html>
