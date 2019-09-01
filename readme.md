@@ -10,5 +10,5 @@
 ## Infra as Code
 
 * Folder IaC
-* terraform 0.12
+* terraform v0.12.7
 * set environment variable as seen in provider.tf

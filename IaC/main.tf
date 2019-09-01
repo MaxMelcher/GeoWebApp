@@ -8,7 +8,7 @@ variable "location2" {
 
 resource "azurerm_resource_group" "rg-lfx" {
   location = "${var.location1}"
-  name = "rg-lfx"
+  name     = "rg-lfx"
 }
 
 resource "azurerm_app_service_plan" "app-plan-lfx" {
@@ -28,14 +28,14 @@ resource "azurerm_app_service" "app-lfx" {
   resource_group_name = "${azurerm_resource_group.rg-lfx.name}"
   app_service_plan_id = "${azurerm_app_service_plan.app-plan-lfx.id}"
 
-  
+
   app_settings = {
     "SOME_KEY" = "some-value"
   }
 }
 
 resource "random_string" "random-sql-pwd" {
-  length = 16
+  length  = 16
   special = true
 }
 
@@ -59,22 +59,22 @@ resource "azurerm_sql_server" "sql-server-lfx-secondary" {
 }
 
 resource "azurerm_sql_database" "sql-db-lfx-primary" {
-  name                = "sql-db-lfx"
-  resource_group_name = "${azurerm_resource_group.rg-lfx.name}"
-  location            = "${azurerm_resource_group.rg-lfx.location}"
-  server_name         = "${azurerm_sql_server.sql-server-lfx-primary.name}"
-  edition = "Standard"
+  name                             = "sql-db-lfx"
+  resource_group_name              = "${azurerm_resource_group.rg-lfx.name}"
+  location                         = "${azurerm_resource_group.rg-lfx.location}"
+  server_name                      = "${azurerm_sql_server.sql-server-lfx-primary.name}"
+  edition                          = "Standard"
   requested_service_objective_name = "S1"
 }
 
 resource "azurerm_sql_database" "sql-db-lfx-secondary" {
-  create_mode                      = "OnlineSecondary"
-  source_database_id               = "${azurerm_sql_database.sql-db-lfx-primary.id}"
-  name                             = "${azurerm_sql_database.sql-db-lfx-primary.name}"
-  resource_group_name              = "${azurerm_resource_group.rg-lfx.name}"
-  location                         = "${var.location2}"
-  server_name                      = "${azurerm_sql_server.sql-server-lfx-secondary.name}"
-  edition                          = "${azurerm_sql_database.sql-db-lfx-primary.edition}"
+  create_mode         = "OnlineSecondary"
+  source_database_id  = "${azurerm_sql_database.sql-db-lfx-primary.id}"
+  name                = "${azurerm_sql_database.sql-db-lfx-primary.name}"
+  resource_group_name = "${azurerm_resource_group.rg-lfx.name}"
+  location            = "${var.location2}"
+  server_name         = "${azurerm_sql_server.sql-server-lfx-secondary.name}"
+  edition             = "${azurerm_sql_database.sql-db-lfx-primary.edition}"
 }
 
 resource "azurerm_sql_firewall_rule" "fw-sql-primary" {
@@ -126,7 +126,8 @@ resource "azurerm_public_ip" "pip-lfx" {
   name                = "pip-lfx"
   resource_group_name = "${azurerm_resource_group.rg-lfx.name}"
   location            = "${azurerm_resource_group.rg-lfx.location}"
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
+  sku                 = "Standard"
 }
 
 # since these variables are re-used - a locals block makes this more maintainable
@@ -144,10 +145,11 @@ resource "azurerm_application_gateway" "appgw-lfx" {
   name                = "appgw-lfx"
   resource_group_name = "${azurerm_resource_group.rg-lfx.name}"
   location            = "${azurerm_resource_group.rg-lfx.location}"
+  zones               = [1, 2, 3]
 
   sku {
-    name     = "Standard_Small"
-    tier     = "Standard"
+    name     = "WAF_v2"
+    tier     = "WAF_v2"
     capacity = 2
   }
 
@@ -167,16 +169,17 @@ resource "azurerm_application_gateway" "appgw-lfx" {
   }
 
   backend_address_pool {
-    name = "${local.backend_address_pool_name}"
+    name      = "${local.backend_address_pool_name}"
+    fqdn_list = ["app-lfx.azurewebsites.net"]
   }
 
   backend_http_settings {
     name                  = "${local.http_setting_name}"
     cookie_based_affinity = "Disabled"
-    path                  = "/path1/"
+    path                  = ""
     port                  = 80
     protocol              = "Http"
-    request_timeout       = 1
+    request_timeout       = 86400
   }
 
   http_listener {
