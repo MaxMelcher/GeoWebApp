@@ -96,14 +96,12 @@
     <script src="resumable.js"></script>
 
     <script>
-      var host = 'http://localhost:5000';
-
       $(document).ready(getListFromServer);
 
       function getListFromServer() {
         $('#records_table tbody').empty();
 
-        $.getJSON(host + '/api/file/uploads', function (data) {
+        $.getJSON('/api/file/uploads', function (data) {
           data.forEach(function (item) {
             var $tr = $('<tr>').append(
               $('<td>').text(item.user),
@@ -114,7 +112,7 @@
               $('<td>').text(item.status),
               $('<td>').append(
                 item.concluded ? $("<a>")
-                  .attr('href', host + '/api/file/download/' + item.id)
+                  .attr('href', '/api/file/download/' + item.id)
                   .text('download') : $("<span>"))
             );
 
@@ -131,7 +129,7 @@
       var sessionId = null;
 
       var r = new Resumable({
-        target: host + '/api/file/upload/' + userId,
+        target: '/api/file/upload/' + userId,
         chunkSize: 1 * 1024 * 1024,
         forceChunkSize: true,
         simultaneousUploads: 1,
@@ -167,7 +165,7 @@
 
 
           // Start the upload session then start the upload of chunks
-          $.post(host + '/api/file/create/' + userId,
+          $.post('/api/file/create/' + userId,
             {
               chunkSize: r.opts.chunkSize,
               totalSize: file.size,
@@ -177,7 +175,7 @@
               sessionId = data.sessionId;
               r.opts.sessionId = sessionId;
               // /api/upload/user/{userId}/session/{sessionId}/
-              r.opts.target = host + '/api/file/upload/user/' + userId + '/session/' + sessionId;
+              r.opts.target = '/api/file/upload/user/' + userId + '/session/' + sessionId;
 
               r.upload();
 
