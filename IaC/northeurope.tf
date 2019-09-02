@@ -56,7 +56,7 @@ resource "azurerm_app_service" "app-lfx-secondary" {
 
 
   app_settings = {
-    "SOME_KEY" = "some-value"
+    "location" = "${var.location2}"
   }
 }
 
@@ -88,6 +88,7 @@ resource "azurerm_public_ip" "pip-lfx-secondary" {
   location            = "${var.location2}"
   allocation_method   = "Static"
   sku                 = "Standard"
+  domain_name_label   = "appgw-lfx-secondary"
 }
 
 
@@ -113,6 +114,11 @@ resource "azurerm_application_gateway" "appgw-lfx-secondary" {
     enabled          = "true"
     firewall_mode    = "Prevention"
     rule_set_version = "3.0"
+
+    disabled_rule_group {
+      rule_group_name = "General"
+      rules           = []
+    }
   }
 
   sku {
@@ -138,7 +144,7 @@ resource "azurerm_application_gateway" "appgw-lfx-secondary" {
 
   backend_address_pool {
     name      = "${local.backend_address_pool_name-secondary}"
-    fqdn_list = ["app-lfx.azurewebsites.net"]
+    fqdn_list = ["app-lfx-secondary.azurewebsites.net"]
   }
 
   backend_http_settings {

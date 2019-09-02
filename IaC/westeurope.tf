@@ -34,7 +34,7 @@ resource "azurerm_app_service" "app-lfx" {
 
 
   app_settings = {
-    "SOME_KEY" = "some-value"
+    "location" = "${var.location1}"
   }
 }
 
@@ -97,6 +97,7 @@ resource "azurerm_public_ip" "pip-lfx" {
   location            = "${var.location1}"
   allocation_method   = "Static"
   sku                 = "Standard"
+  domain_name_label   = "appgw-lfx"
 }
 
 # since these variables are re-used - a locals block makes this more maintainable
@@ -120,6 +121,11 @@ resource "azurerm_application_gateway" "appgw-lfx" {
     enabled          = "true"
     firewall_mode    = "Prevention"
     rule_set_version = "3.0"
+
+    disabled_rule_group {
+      rule_group_name = "General"
+      rules           = []
+    }
   }
 
   sku {

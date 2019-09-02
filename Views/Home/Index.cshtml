@@ -97,6 +97,7 @@
       $(document).ready(getListFromServer);
 
       function getListFromServer() {
+        $.ajaxSetup({ cache: false });
         $('#records_table tbody').empty();
 
         $.getJSON(host + '/api/file/uploads', function (data) {

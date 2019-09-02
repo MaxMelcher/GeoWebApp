@@ -23,8 +23,8 @@ resource "azurerm_traffic_manager_endpoint" "primary" {
   name                = "tme-primary"
   resource_group_name = "${azurerm_resource_group.rg-lfx.name}"
   profile_name        = "${azurerm_traffic_manager_profile.tm-profile.name}"
-  target              = "${azurerm_public_ip.pip-lfx.ip_address}"
-  type                = "externalEndpoints"
+  target_resource_id  = "${azurerm_public_ip.pip-lfx.id}"
+  type                = "azureEndpoints"
   weight              = 100
   endpoint_location   = "westeurope"
 }
@@ -33,8 +33,8 @@ resource "azurerm_traffic_manager_endpoint" "secondary" {
   name                = "tme-secondary"
   resource_group_name = "${azurerm_resource_group.rg-lfx.name}"
   profile_name        = "${azurerm_traffic_manager_profile.tm-profile.name}"
-  target              = "${azurerm_public_ip.pip-lfx-secondary.ip_address}"
-  type                = "externalEndpoints"
+  target_resource_id  = "${azurerm_public_ip.pip-lfx-secondary.id}"
+  type                = "azureEndpoints"
   weight              = 100
-  endpoint_location   = "francecentral"
+  endpoint_location   = "northeurope"
 }
