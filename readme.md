@@ -6,12 +6,15 @@
 * azure website in 32bit mode
 * <code>dotnet publish -r win-x86 -o publish</code>
 * copy files to azure website
+* Add Account Key to appsettings.json
 
 ## Infra as Code
 
 * Folder IaC
 * terraform v0.12.7
 * set environment variable as seen in provider.tf
+
+
 
 ## Thanks
 
