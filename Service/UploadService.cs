@@ -10,11 +10,9 @@ namespace LargeFileExchange.Service
 {
     public class UploadService
     {
-
-
         private const int CHUNK_LIMIT = 1024 * 1024;
 
-        Dictionary<String, Session> sessions;
+        private static Dictionary<String, Session> sessions;
         FileRepository fileStorage;
 
         public UploadService(FileRepository storage)
