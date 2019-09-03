@@ -13,10 +13,13 @@ using Microsoft.AspNetCore.Cors;
 using LargeFileExchange.Service;
 using LargeFileExchange.Data;
 using LargeFileExchange.Model;
-
+using Microsoft.Extensions.Configuration;
 
 namespace LargeFileExchange.Controllers
 {
+
+
+
     /// <summary>
     /// File Management Controller
     /// </summary>
@@ -25,11 +28,14 @@ namespace LargeFileExchange.Controllers
     [EnableCors("MyPolicy")]
     public class FileController : Controller
     {
-        private static UploadService uploadService = new UploadService(new LocalFileSystemRepository());
+        private IConfiguration _config;
 
-        public FileController()
+        private UploadService _uploadService;
+
+        public FileController(IConfiguration config)
         {
-
+            _config = config;
+            _uploadService = new UploadService(new BlobFileSystemRepository(_config));
         }
 
         /// <summary>
@@ -46,7 +52,7 @@ namespace LargeFileExchange.Controllers
                          [FromForm] CreateSessionParams sessionParams)
         {
 
-            Session session = uploadService.createSession(userId, sessionParams.FileName,
+            Session session = _uploadService.createSession(userId, sessionParams.FileName,
                                                           sessionParams.ChunkSize.Value,
                                                           sessionParams.TotalSize.Value);
 
@@ -86,7 +92,7 @@ namespace LargeFileExchange.Controllers
             // however, I want to test the code and have to pass it to the UploadFileChunk function...
             IFormFile file = (inputFile ?? Request.Form.Files.First());
 
-            uploadService.persistBlock(sessionId, userId.Value, chunkNumber.Value, ToByteArray(file.OpenReadStream()));
+            _uploadService.persistBlock(sessionId, userId.Value, chunkNumber.Value, ToByteArray(file.OpenReadStream()));
 
             return Json("Ok");
         }
@@ -103,7 +109,7 @@ namespace LargeFileExchange.Controllers
         [SwaggerResponse(200, typeof(UploadStatusResponse))]
         public UploadStatusResponse GetUploadStatus([FromRoute, Required] string sessionId)
         {
-            return UploadStatusResponse.fromSession(uploadService.getSession(sessionId));
+            return UploadStatusResponse.fromSession(_uploadService.getSession(sessionId));
         }
 
         /// <summary>
@@ -116,7 +122,7 @@ namespace LargeFileExchange.Controllers
         [SwaggerResponse(200, typeof(List<UploadStatusResponse>))]
         public List<UploadStatusResponse> GetAllUploadStatus()
         {
-            return UploadStatusResponse.fromSessionList(uploadService.getAllSessions());
+            return UploadStatusResponse.fromSessionList(_uploadService.getAllSessions());
         }
 
         /// <summary>
@@ -131,7 +137,7 @@ namespace LargeFileExchange.Controllers
         [SwaggerResponse(500, Description = "Internal server error")]
         public void DownloadFile([FromRoute, Required] string sessionId)
         {
-            Session session = uploadService.getSession(sessionId);
+            Session session = _uploadService.getSession(sessionId);
 
             var response = targetResponse ?? Response;
 
@@ -139,7 +145,7 @@ namespace LargeFileExchange.Controllers
             response.ContentLength = session.FileInfo.FileSize;
             response.Headers["Content-Disposition"] = "attachment; fileName=" + session.FileInfo.FileName;
 
-            uploadService.WriteToStream(targetOutputStream ?? Response.Body, session);
+            _uploadService.WriteToStream(targetOutputStream ?? Response.Body, session);
         }
 
         private byte[] ToByteArray(Stream stream)
@@ -151,7 +157,8 @@ namespace LargeFileExchange.Controllers
             }
         }
 
-        private JsonResult badRequest(string message) {
+        private JsonResult badRequest(string message)
+        {
             var result = new JsonResult("{'message': '" + message + "' }");
             result.StatusCode = 400;
             return result;
@@ -159,14 +166,16 @@ namespace LargeFileExchange.Controllers
 
         Stream targetOutputStream = null;
         // intended for integration tests only
-        [ApiExplorerSettings(IgnoreApi=true)]
-        public void SetOuputStream(Stream replacementStream) {
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public void SetOuputStream(Stream replacementStream)
+        {
             this.targetOutputStream = replacementStream;
         }
 
         HttpResponse targetResponse = null;
-        [ApiExplorerSettings(IgnoreApi=true)]
-        public void SetTargetResponse(HttpResponse replacementResponse) {
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public void SetTargetResponse(HttpResponse replacementResponse)
+        {
             this.targetResponse = replacementResponse;
         }
     }
